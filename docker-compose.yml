@@ -1,0 +1,51 @@
+version: '3'
+services:
+  nginx:
+    hostname: nginx
+    container_name: nginx
+    build:
+      context: docker/nginx
+    volumes:
+      - ./:/var/www
+      - ./log/nginx:/var/log/nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - php-fpm-test
+    networks:
+      internal:
+        aliases: # алиасы нужны если нужно общаться внутри сети между хостами. Например, если вы используете api
+          - test.local
+
+  php-fpm-test:
+    container_name: php-fpm-test
+    build:
+      context: docker/php-7.4-fpm
+    volumes:
+      - ./:/var/www
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_autostart=0 max_nesting_level=2048"
+      PHP_IDE_CONFIG: "serverName=my.test"
+    networks:
+      - internal
+
+#  db:
+#    image: mariadb
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: 123456
+#
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 6080:8080
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.220.0/28

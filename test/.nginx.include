@@ -1,0 +1,5 @@
+if ( $http_host ~ ^([a-zA-Z0-9\-]+\.)?[a-zA-Z0-9\-]+\.[a-zA-Z0-9\:]+$ ) {
+    rewrite ^/(.*)$ /web.php?path=$1 break;
+}
+
+break;
